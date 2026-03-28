@@ -1,0 +1,22 @@
+{
+  "name": "bazaar-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "seed:public": "node src/db/seed-public.js",
+    "seed:private": "node src/db/seed-private.js",
+    "migrate": "node src/db/migrate.js"
+  },
+  "dependencies": {
+    "@fastify/cookie": "9.4.0",
+    "@fastify/cors": "9.0.1",
+    "@fastify/jwt": "8.0.1",
+    "@fastify/multipart": "8.3.0",
+    "@fastify/static": "7.0.4",
+    "better-sqlite3": "9.6.0",
+    "bcryptjs": "2.4.3",
+    "fastify": "4.28.1"
+  }
+}
