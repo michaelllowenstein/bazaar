@@ -1,0 +1,66 @@
+{
+  "family": "bazaar",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "bazaar",
+      "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/bazaar:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV",    "value": "production" },
+        { "name": "PORT",        "value": "3000" },
+        { "name": "HOST",        "value": "127.0.0.1" },
+        { "name": "DB_PATH",     "value": "/data/bazaar.db" },
+        { "name": "CORS_ORIGIN", "value": "https://YOUR_DOMAIN" }
+      ],
+      "secrets": [
+        {
+          "name": "JWT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:bazaar/jwt-secret"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "bazaar-data",
+          "containerPath": "/data",
+          "readOnly": false
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group":         "/ecs/bazaar",
+          "awslogs-region":        "REGION",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command":     ["CMD-SHELL", "wget -qO- http://127.0.0.1/health || exit 1"],
+        "interval":    15,
+        "timeout":     5,
+        "retries":     3,
+        "startPeriod": 30
+      }
+    }
+  ],
+  "volumes": [
+    {
+      "name": "bazaar-data",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "fs-XXXXXXXX",
+        "rootDirectory": "/bazaar"
+      }
+    }
+  ]
+}
